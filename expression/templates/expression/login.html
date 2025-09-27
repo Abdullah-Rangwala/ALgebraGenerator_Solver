@@ -1,0 +1,36 @@
+<!-- filepath: c:\Pyproject\AlgebraSolver\expression\templates\expression\login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'expression/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <div class="login-form">
+            <form method="post">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="error-messages">
+                        <p>Invalid username or password. Please try again.</p>
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
+    </div>
+</body>
+</html>

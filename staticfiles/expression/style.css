@@ -1,0 +1,240 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.options button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.options button:hover {
+    background-color: #45a049;
+}
+
+.equation-display {
+    margin: 20px 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.input-section {
+    margin: 20px 0;
+}
+
+.input-section label {
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+.input-section input {
+    padding: 10px;
+    font-size: 1em;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.input-section button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #2196F3;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.input-section button:hover {
+    background-color: #0b7dda;
+}
+
+.history-section button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #FF5722;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.history-section button:hover {
+    background-color: #e64a19;
+}
+
+.result-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 2px solid #4CAF50; /* Green border */
+    border-radius: 8px;
+    background-color: #f9f9f9; /* Light background */
+    color: #333; /* Dark text */
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.result-container p {
+    margin: 5px 0;
+}
+
+.result-container .correct {
+    color: #4CAF50; /* Green for correct answers */
+    font-weight: bold;
+}
+
+.result-container .incorrect {
+    color: #F44336; /* Red for incorrect answers */
+    font-weight: bold;
+}
+
+.result-section {
+    margin-top: 20px;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.equation-container, .answer-container {
+    margin-bottom: 15px;
+}
+
+.equation-container h2, .answer-container h2 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.equation-container p, .answer-container p {
+    font-size: 16px;
+    color: #555;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.answer-container p.correct {
+    color: #4CAF50; /* Green for correct answers */
+    font-weight: bold;
+}
+
+.answer-container p.incorrect {
+    color: #F44336; /* Red for incorrect answers */
+    font-weight: bold;
+}
+
+/* History Section Styling */
+.history-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.history-section.open {
+    max-height: 500px; /* Adjust based on your content */
+}
+
+.history-section button {
+    display: inline-block; /* Ensure buttons are displayed */
+    margin: 5px 0;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.history-section button:hover {
+    background-color: #45a049;
+}
+
+/* Styling for the history controls */
+.history-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.history-controls button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.history-controls button:hover {
+    background-color: #45a049;
+}
+
+/* Base styling for history items */
+.history-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Styling for correct answers */
+.history-item.correct {
+    border: 2px solid #4CAF50; /* Green outline for correct answers */
+}
+
+/* Styling for incorrect answers */
+.history-item.incorrect {
+    border: 2px solid #F44336; /* Red outline for incorrect answers */
+}
+
+/* Hover effect for history items */
+.history-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

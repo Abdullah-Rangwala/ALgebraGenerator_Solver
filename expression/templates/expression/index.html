@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra Equation Generator And Solver</title> <!-- Updated title -->
+    <link rel="stylesheet" href="{% static 'expression/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <img src="{% static 'expression/logo.png' %}" alt="Logo">
+        <h1>Algebra Equation Generator And Solver</h1> <!-- Updated heading -->
+
+        
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}!</p>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn">Logout</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Register</a></p>
+        {% endif %}
+        
+        <div class="options">
+            <button onclick="generateEquation('linear')">Linear</button>
+            <button onclick="generateEquation('quadratic')">Quadratic</button>
+            <button onclick="generateEquation('polynomial')">Polynomial</button>
+        </div>
+
+        <div class="equation-display">
+            <p>Generated Equation:</p>
+            <p id="equation">\( ax + b = c \)</p>
+        </div>
+
+        <div class="input-section">
+            <label for="answer">Your Answer:</label>
+            <input type="text" id="answer" placeholder="Enter your answer">
+            <button onclick="submitAnswer()">Submit</button>
+        </div>
+
+        <div class="result-section">
+            <div id="equation-display" class="equation-container">
+                <h2>Equation:</h2>
+                <p id="equation-result">\( ax + b = c \)</p>
+            </div>
+            <div id="answer-display" class="answer-container">
+                <h2>Your Answer:</h2>
+                <p id="answer-result"></p>
+            </div>
+        </div>
+
+        <div class="history-controls">
+            <button id="view-history-btn" onclick="toggleHistory()">View History</button>
+            <button id="clear-history-btn" onclick="clearHistory()">Clear History</button>
+        </div>
+        <div class="history-section" id="history-section">
+            <ul id="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        let equationParams = {}; // Store the equation parameters globally
+        let equationType = '';   // Store the equation type globally
+
+        function generateEquation(type) {
+            equationType = type; // Save the equation type globally
+            fetch(`/generate/?type=${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    const equationDisplay = document.getElementById('equation');
+                    const answerInput = document.getElementById('answer');
+
+                    if (data.error) {
+                        equationDisplay.innerHTML = `<p class="incorrect">Error: ${data.error}</p>`;
+                        return;
+                    }
+
+                    // Display the generated equation
+                    equationDisplay.innerHTML = `\\( ${data.equation} \\)`;
+                    MathJax.typeset();
+
+                    // Save the coefficients for polynomial equations only
+                    if (type === 'polynomial') {
+                        equationParams = {
+                            coefficients: data.coefficients,
+                            degree: data.coefficients.length - 1, // Degree is one less than the number of coefficients
+                        };
+                        console.log(`Polynomial coefficients: ${data.coefficients}`);
+                        console.log(`Polynomial degree: ${equationParams.degree}`);
+                    } else if (type === 'linear' || type === 'quadratic') {
+                        // Save parameters for linear and quadratic equations
+                        equationParams = {
+                            a: data.a,
+                            b: data.b,
+                            c: data.c,
+                        };
+                        console.log(`Equation parameters: a=${data.a}, b=${data.b}, c=${data.c}`);
+                    }
+
+                    // Clear the answer input field
+                    answerInput.value = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('equation').innerHTML = `<p class="incorrect">Error occurred while generating the equation.</p>`;
+                });
+        }
+
+        function round(value, decimals) {
+            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('answer').value;
+
+            let url = `/solve/?type=${equationType}&answer=${answer}`;
+            if (equationType === 'linear' || equationType === 'quadratic') {
+                url += `&a=${equationParams.a}&b=${equationParams.b}&c=${equationParams.c}`;
+            } else if (equationType === 'polynomial') {
+                url += `&degree=${equationParams.coefficients.length - 1}`;
+                equationParams.coefficients.forEach((coeff, index) => {
+                    url += `&coeff${index}=${coeff}`;
+                });
+            }
+
+            console.log('Constructed URL:', url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const equationDisplay = document.getElementById('equation-result');
+                    const answerDisplay = document.getElementById('answer-result');
+
+                    if (data.error) {
+                        equationDisplay.innerHTML = `<p class="incorrect">Error: ${data.error}</p>`;
+                        return;
+                    }
+
+                    equationDisplay.innerHTML = `\\( ${data.equation} \\)`;
+                    MathJax.typeset();
+
+                    const isCorrectClass = data.is_correct ? 'correct' : 'incorrect';
+                    const message = data.is_correct
+                        ? 'Your answer is correct! 🎉'
+                        : `Your answer is incorrect. The correct answer is ${data.correct_answer}.`;
+                    answerDisplay.innerHTML = `<p class="${isCorrectClass}">${message}</p>`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('equation-result').innerHTML = `<p class="incorrect">Error occurred while submitting the answer.</p>`;
+                    document.getElementById('answer-result').innerHTML = `<p class="incorrect">An unexpected error occurred.</p>`;
+                });
+        }
+
+        function updateHistory() {
+            fetch('/history/') // Ensure this endpoint returns the history data
+                .then(response => response.json())
+                .then(data => {
+                    const historyList = document.getElementById('history-list');
+                    historyList.innerHTML = ''; // Clear the current history list
+
+                    console.log('Fetched history data:', data); // Debugging log
+
+                    if (data.history && data.history.length === 0) {
+                        // If no history is available, display a message
+                        historyList.innerHTML = '<p class="no-history">No history available.</p>';
+                        return;
+                    }
+
+                    // Loop through the history data and render each entry
+                    data.history.forEach(entry => {
+                        console.log('Rendering entry:', entry); // Debugging log
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('history-item'); // Add a base class for styling
+                        listItem.classList.add(entry.is_correct ? 'correct' : 'incorrect'); // Add class based on correctness
+
+                        listItem.innerHTML = `
+                            <strong>Equation:</strong> ${entry.equation}<br>
+                            <strong>Your Answer:</strong> ${entry.user_answer}<br>
+                            <strong>Correct Answer:</strong> ${entry.correct_answer}<br>
+                            <strong>Result:</strong> ${entry.is_correct ? 'Correct' : 'Incorrect'}
+                        `;
+                        historyList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error('Error fetching history:', error));
+        }
+
+        function toggleHistory() {
+            const historySection = document.getElementById('history-section');
+            const viewHistoryButton = document.getElementById('view-history-btn');
+
+            if (historySection) {
+                historySection.classList.toggle('open'); // Toggle the "open" class
+
+                // Update the button text based on the state
+                if (historySection.classList.contains('open')) {
+                    viewHistoryButton.textContent = 'Hide History';
+                    updateHistory(); // Fetch and display the latest history when opening
+                } else {
+                    viewHistoryButton.textContent = 'View History';
+                }
+            } else {
+                console.error('History section not found');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear the history?')) {
+                fetch('/clear-history/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            document.getElementById('history-list').innerHTML = ''; // Clear the history list
+                        } else {
+                            alert('Failed to clear history: ' + data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error clearing history:', error));
+            }
+        }
+
+        // Call updateHistory on page load to display stored history
+        document.addEventListener('DOMContentLoaded', updateHistory);
+    </script>
+</body>
+</html>
