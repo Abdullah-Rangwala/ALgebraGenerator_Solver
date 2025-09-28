@@ -1,0 +1,29 @@
+<!-- filepath: c:\Pyproject\AlgebraSolver\expression\templates\expression\register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'expression/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <div class="registration-form">
+            {% if form.errors %}
+                <div class="error-messages">
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn">Register</button>
+            </form>
+        </div>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+    </div>
+</body>
+</html>
